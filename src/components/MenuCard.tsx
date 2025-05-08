@@ -3,6 +3,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Badge } from "@/components/ui/badge";
 import { MenuItem } from "@/types";
 import { cn } from "@/lib/utils";
+import { Euro } from "lucide-react";
 
 interface MenuCardProps {
   item: MenuItem;
@@ -11,9 +12,9 @@ interface MenuCardProps {
 
 const MenuCard = ({ item, className }: MenuCardProps) => {
   const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('pt-BR', {
+    return new Intl.NumberFormat('de-DE', {
       style: 'currency',
-      currency: 'BRL'
+      currency: 'EUR'
     }).format(price);
   };
 
@@ -52,7 +53,10 @@ const MenuCard = ({ item, className }: MenuCardProps) => {
         )}
       </CardContent>
       <CardFooter className="flex justify-between items-center">
-        <span className="font-display text-lg text-primary">{formatPrice(item.price)}</span>
+        <span className="font-display text-lg text-primary flex items-center">
+          <Euro size={16} className="mr-1" />
+          {formatPrice(item.price)}
+        </span>
         <Badge variant="secondary" className="text-xs font-medium">
           {item.category}
         </Badge>

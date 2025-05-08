@@ -1,3 +1,4 @@
+
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
@@ -9,8 +10,8 @@ import { useToast } from "@/components/ui/use-toast";
 import { mockMenuItems } from "@/data/mockData";
 import { MenuItem } from "@/types";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Check, Pencil, Plus, Trash2 } from "lucide-react";
-import { useState } from "react";
+import { Check, Euro, Image, Pencil, Plus, Trash2, Upload } from "lucide-react";
+import { useState, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
@@ -31,6 +32,7 @@ const AdminMenuManager = () => {
   const { toast } = useToast();
   const [items, setItems] = useState<MenuItem[]>(mockMenuItems);
   const [editingItemId, setEditingItemId] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   
   const form = useForm<FormValues>({
     resolver: zodResolver(menuItemSchema),
@@ -60,6 +62,35 @@ const AdminMenuManager = () => {
       available: item.available,
       allergens: item.allergens ? item.allergens.join(", ") : "",
     });
+  };
+  
+  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    
+    if (!file.type.match('image/jpeg|image/png|image/jpg')) {
+      toast({
+        title: "Formato inválido",
+        description: "Por favor, selecione uma imagem no formato PNG ou JPEG/JPG.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const result = e.target?.result as string;
+      form.setValue("image", result);
+      toast({
+        title: "Imagem carregada",
+        description: `${file.name} foi carregada com sucesso.`,
+      });
+    };
+    reader.readAsDataURL(file);
+  };
+  
+  const handleTriggerFileInput = () => {
+    fileInputRef.current?.click();
   };
   
   const handleAddOrUpdateItem = (values: FormValues) => {
@@ -141,6 +172,13 @@ const AdminMenuManager = () => {
     });
   };
   
+  const formatPrice = (price: number) => {
+    return new Intl.NumberFormat('de-DE', {
+      style: 'currency',
+      currency: 'EUR'
+    }).format(price);
+  };
+  
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
       <div className="lg:col-span-2">
@@ -169,11 +207,9 @@ const AdminMenuManager = () => {
                     <tr key={item.id} className="border-b">
                       <td className="py-3 px-2">{item.name}</td>
                       <td className="py-3 px-2">{item.category}</td>
-                      <td className="py-3 px-2">
-                        {new Intl.NumberFormat('pt-BR', {
-                          style: 'currency',
-                          currency: 'BRL'
-                        }).format(item.price)}
+                      <td className="py-3 px-2 flex items-center">
+                        <Euro size={16} className="mr-1" />
+                        {formatPrice(item.price)}
                       </td>
                       <td className="py-3 px-2 text-center">
                         {item.isSpecial ? <Check size={16} className="mx-auto text-primary" /> : null}
@@ -260,16 +296,19 @@ const AdminMenuManager = () => {
                     name="price"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Preço</FormLabel>
+                        <FormLabel>Preço (€)</FormLabel>
                         <FormControl>
-                          <Input 
-                            type="number" 
-                            step="0.01" 
-                            min="0" 
-                            placeholder="0.00" 
-                            {...field}
-                            onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
-                          />
+                          <div className="flex items-center">
+                            <Euro size={16} className="mr-2 text-muted-foreground" />
+                            <Input 
+                              type="number" 
+                              step="0.01" 
+                              min="0" 
+                              placeholder="0.00" 
+                              {...field}
+                              onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
+                            />
+                          </div>
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -312,12 +351,43 @@ const AdminMenuManager = () => {
                   name="image"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>URL da Imagem</FormLabel>
+                      <FormLabel>Imagem</FormLabel>
                       <FormControl>
-                        <Input placeholder="https://..." {...field} />
+                        <div className="space-y-3">
+                          <Input placeholder="https://..." {...field} />
+                          
+                          <div className="flex items-center gap-3">
+                            <Button 
+                              type="button" 
+                              variant="outline" 
+                              className="w-full"
+                              onClick={handleTriggerFileInput}
+                            >
+                              <Upload className="h-4 w-4 mr-2" />
+                              Carregar Imagem
+                            </Button>
+                            <input
+                              ref={fileInputRef}
+                              type="file"
+                              className="hidden"
+                              accept="image/png,image/jpeg,image/jpg"
+                              onChange={handleFileUpload}
+                            />
+                          </div>
+                          
+                          {field.value && (
+                            <div className="relative mt-2 h-32 bg-muted rounded-md overflow-hidden">
+                              <img 
+                                src={field.value} 
+                                alt="Preview" 
+                                className="h-full w-full object-cover"
+                              />
+                            </div>
+                          )}
+                        </div>
                       </FormControl>
                       <FormDescription>
-                        URL de uma imagem do prato
+                        URL ou carregue uma imagem JPG/PNG
                       </FormDescription>
                       <FormMessage />
                     </FormItem>
