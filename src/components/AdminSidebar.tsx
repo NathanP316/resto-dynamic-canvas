@@ -1,6 +1,6 @@
 
 import { Button } from "@/components/ui/button";
-import { Calendar, Home, Menu, Settings, Users } from "lucide-react";
+import { Calendar, Home, Menu, Settings } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
 
@@ -23,11 +23,6 @@ const AdminSidebar = () => {
       name: "Reservas",
       path: "/admin/reservas",
       icon: <Calendar size={20} />,
-    },
-    {
-      name: "Clientes",
-      path: "/admin/clientes",
-      icon: <Users size={20} />,
     },
     {
       name: "Configurações",
