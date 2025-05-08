@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
@@ -6,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
-import { useToast } from "@/components/ui/toast";
+import { useToast } from "@/components/ui/use-toast";
 import { mockMenuItems } from "@/data/mockData";
 import { MenuItem } from "@/types";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -75,7 +74,13 @@ const AdminMenuManager = () => {
           item.id === editingItemId 
             ? {
                 ...item,
-                ...values,
+                name: values.name,
+                description: values.description,
+                price: values.price,
+                category: values.category,
+                image: values.image,
+                isSpecial: values.isSpecial,
+                available: values.available,
                 allergens: allergensArray,
               }
             : item
@@ -90,7 +95,13 @@ const AdminMenuManager = () => {
       // Adicionar novo item
       const newItem: MenuItem = {
         id: `item-${items.length + 1}`,
-        ...values,
+        name: values.name,
+        description: values.description,
+        price: values.price,
+        category: values.category,
+        image: values.image,
+        isSpecial: values.isSpecial,
+        available: values.available,
         allergens: allergensArray,
       };
       

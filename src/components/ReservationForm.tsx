@@ -69,8 +69,21 @@ const ReservationForm = () => {
   
   const onSubmit = (values: FormValues) => {
     try {
+      // Fix the type issue by ensuring all required fields are provided
+      const reservationData = {
+        name: values.name,
+        email: values.email,
+        phone: values.phone,
+        date: values.date,
+        time: values.time,
+        tables: values.tables,
+        adults: values.adults,
+        children: values.children,
+        comments: values.comments || ""
+      };
+      
       // Adicionando a reserva aos dados mockados
-      const newReservation = addReservation(values);
+      const newReservation = addReservation(reservationData);
       
       toast({
         title: "Reserva solicitada com sucesso!",
